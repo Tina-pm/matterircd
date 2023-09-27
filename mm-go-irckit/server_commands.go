@@ -371,7 +371,7 @@ func CmdPrivMsg(s Server, u *User, msg *irc.Message) error {
 	re := regexp.MustCompile(`\x03([019]?[0-9](,[019]?[0-9])?)?`)
 	msg.Trailing = re.ReplaceAllString(msg.Trailing, "")
 	// Convert IRC formatting / emphasis to markdown.
-	msg.Trailing = irc2md(msg.Trailing)
+	msg.Trailing = irc2markdown(msg.Trailing)
 
 	// are we sending to a channel
 	if ch, exists := s.HasChannel(query); exists {
@@ -814,7 +814,7 @@ func CmdWhois(s Server, u *User, msg *irc.Message) error {
 }
 
 //nolint:funlen
-func irc2md(msg string) string {
+func irc2markdown(msg string) string {
 	emphasisSupported := map[byte][]byte{
 		'\x02': {'*', '*'}, // Bold      0x02  **   (**text**)
 		'\x1d': {'_'},      // Italics   0x1D  _    (_text_)
@@ -833,19 +833,20 @@ func irc2md(msg string) string {
 		var ok bool
 		var emp []byte
 
+		// Strip or ignore unsuppored IRC formatting / emphasis
 		if _, ok = emphasisUnsupported[char]; ok {
-			buf = append(buf, char)
 			continue
 		}
 
+		// Not an IRC formatting / emphasis character so copy as is
 		if emp, ok = emphasisSupported[char]; !ok {
 			buf = append(buf, char)
 			continue
 		}
 
-		// Reset formatting
+		// IRC reset so reset formatting
 		if char == '\x0f' {
-			// Close off any current emphasis
+			// Close off any current formatting / emphasis
 			for _, c := range currentEmphasis {
 				buf = append(buf, emphasisSupported[c]...)
 			}
@@ -855,7 +856,7 @@ func irc2md(msg string) string {
 
 		buf = append(buf, emp...)
 
-		// Remove closing emphasis.
+		// Remove closing emphasis
 		found := false
 		var newEmphasis []byte
 		for _, c := range currentEmphasis {
@@ -865,7 +866,6 @@ func irc2md(msg string) string {
 			}
 			newEmphasis = append(newEmphasis, c)
 		}
-
 		if found {
 			currentEmphasis = newEmphasis
 			continue
@@ -874,6 +874,7 @@ func irc2md(msg string) string {
 		currentEmphasis = append([]byte{char}, currentEmphasis...)
 	}
 
+	// Close off any current formatting / emphasis
 	for _, c := range currentEmphasis {
 		buf = append(buf, emphasisSupported[c]...)
 	}
