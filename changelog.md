@@ -1,3 +1,20 @@
+# v0.29.0-dev1
+
+- Fix mentions for every message (#562)
+- Add option to only show messages in joined channels, nothing in &messages (#563)
+- Update README.md with Contributors (#565)
+- Add option to only show messages in joined channels for file events also (#566)
+- Add option to show scrollback messages in the single/catchall &messages (#552)
+- Fix channels created for file events via DM - #571 (#573)
+- Add command to part/leave channels (#569)
+- Update to go1.22 (#579)
+- Support Mattermost 10.0.0 (#585)
+- Convert IRC formatting / emphasis to markdown for Mattermost (#546)
+- Show emojis by converting their string/aliases to unicode (#564)
+- Add support for message attachments (#575)
+- Improve search (#553)
+- Make replay a service in preparation for consolidating with search & scrollback (#554)
+
 # v0.28.0
 
 ## New features
